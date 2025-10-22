@@ -15,11 +15,20 @@ app.use(cors())
 
 //Import routes
 import authRoutes from './routes/authRoutes'
-
+import projectRoutes from './routes/projectRoutes'
+import blogRoutes from './routes/blogPostRoutes'
+import contactRoutes from './routes/contactRoutes'
+import githubRoutes from "./routes/githubRoutes";
+import dashboardRoutes from "./routes/dashboardRoutes";
 
 //Use Routes
 app.use('/api/auth', authRoutes)
-
+app.use('/api/projects', projectRoutes)
+app.use('/api/blogs', blogRoutes)
+app.use('/api/contact', contactRoutes)
+app.use("/api/github", githubRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+//app.use('/api/blogs', blogRoutes)
 
 app.get("/", (_, res) => {
   res.send("Portfolio API running...");
