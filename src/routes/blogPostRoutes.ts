@@ -1,6 +1,6 @@
 import express from 'express';
 import blogController from '../controllers/blogPostController'; // No {}
-import authMiddleware from '../middleware/authMiddlware'; // No {}
+import authMiddleware from '../middleware/authMiddleware'; // No {}
 
 const router = express.Router();
 

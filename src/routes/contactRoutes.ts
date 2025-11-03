@@ -1,6 +1,6 @@
 import express from 'express';
 import contactController from '../controllers/contactController'; // No {}
-import authMiddleware from '../middleware/authMiddlware'; // No {}
+import authMiddleware from '../middleware/authMiddleware'; // No {}
 
 const router = express.Router();
 

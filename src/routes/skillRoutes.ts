@@ -1,6 +1,6 @@
 import express from 'express';
 import skillController from '../controllers/skillController'; // No {}
-import authMiddleware from '../middleware/authMiddlware';
+import authMiddleware from '../middleware/authMiddleware';
 
 const router = express.Router();
 

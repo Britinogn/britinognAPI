@@ -1,6 +1,6 @@
 import express from 'express';
 import projectController from '../controllers/projectController'; // No {}
-import authMiddleware from '../middleware/authMiddlware';
+import authMiddleware from '../middleware/authMiddleware';
 import uploadProject from '../middleware/uploadMiddleware'; // No {}
 
 const router = express.Router();

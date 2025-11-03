@@ -16,6 +16,7 @@ interface  IProjectBody {
 
 type TypedRequest<T = {}> = Request<{}, any , T>;
 
+
 export const getAllProject = async (req: Request, res: Response) => {
     try {
         const { page = 1, limit = 5 } = req.query;
