@@ -27,6 +27,7 @@ export const getDashboardData = async (req: Request, res: Response): Promise<voi
       publishedProjects: projects.filter((p: any) => p.published || p.isPublished).length,
       publishedBlogs: blogs.filter((b: any) => b.published || b.isPublished).length,
       unreadContacts: contacts.filter((c: any) => !c.read || !c.isRead).length,
+      //github: GithubStats,
     };
 
     res.status(200).json({

@@ -11,6 +11,7 @@ interface IProject extends Document {
         public_id: string;
     };
     category?:string
+    yearBuilt?:number
     createdAt: Date;
     updatedAt: Date;
 }
@@ -27,7 +28,8 @@ const projectSchema: Schema<IProject> = new mongoose.Schema({
     },
     githubUrl: { type: String,  trim: true },
     liveURL: { type: String,  trim: true },
-    category: { type: String, trim: true }
+    category: { type: String, trim: true },
+    yearBuilt:{type:Number, min: 2000}
 }, { timestamps: true });
 
 export default mongoose.model<IProject, ProjectModelType>('Project', projectSchema);
