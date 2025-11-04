@@ -5,13 +5,15 @@ import { Request, Response, NextFunction } from 'express';
 interface  IProjectBody {
     title: string;
     description: string;
-    techStack: string[];
+    techStack: string[] | string;
     githubUrl: string;
     liveURL: string;
     imageURL: {
         url: string;
         public_id: string;
-    };
+    }[];
+    category?: string;
+    yearBuilt?: number;
 }
 
 type TypedRequest<T = {}> = Request<{}, any , T>;
@@ -74,22 +76,49 @@ export const getProjectById = async (req: Request, res: Response) => {
 export const createProject =  async (req: TypedRequest<IProjectBody>, res: Response) => {
     try {
         const {title, description,techStack ,githubUrl , liveURL} = req.body;
+        
         if (!title|| !description|| !techStack|| !githubUrl|| !liveURL) {
             res.status(400).json({message: 'All fields are required'})
             return;
         }
 
-        // Handle image from multer
-        const imageURL = req.file ? {
-            url: req.file.path, // or cloudinary url
-            public_id: req.file.filename
-        } : undefined;
+        // ✅ Parse techStack to ensure it's always an array
+        let parsedTechStack: string[];
+        if (typeof techStack === 'string') {
+            try {
+                parsedTechStack = JSON.parse(techStack);
+            } catch (e) {
+                // If parsing fails, treat as comma-separated or single value
+                parsedTechStack = techStack.includes(',') 
+                    ? techStack.split(',').map(s => s.trim())
+                    : [techStack];
+            }
+        } else if (Array.isArray(techStack)) {
+            parsedTechStack = techStack;
+        } else {
+            res.status(400).json({ message: 'Invalid techStack format' });
+            return;
+        }
+
+        // Normalize req.files to an array of Express.Multer.File
+        const filesArray: Express.Multer.File[] = Array.isArray(req.files)
+            ? req.files
+            : req.files
+            ? // req.files might be an object with field names: { photos: File[], other: File[] }
+            Object.values(req.files).flat() as Express.Multer.File[]
+            : [];
+
+        // Now map safely
+        const imageURL = filesArray.map((file) => ({
+            url: file.path,      // or cloudinary url / file.location depending on uploader
+            public_id: file.filename
+        }));
 
 
         const newProject = await ProjectModel.create({
             title,
             description,
-            techStack,
+            techStack: parsedTechStack,
             githubUrl,
             liveURL,
             imageURL
@@ -128,19 +157,47 @@ export const updateProject = async (req: Request, res: Response) => {
 
         const {title, description,techStack ,githubUrl , liveURL} = req.body;
 
+        // ✅ Parse techStack to ensure it's always an array
+        let parsedTechStack: string[] | undefined;
+        if (techStack) {
+            if (typeof techStack === 'string') {
+                try {
+                    parsedTechStack = JSON.parse(techStack);
+                } catch (e) {
+                    parsedTechStack = techStack.includes(',')
+                        ? techStack.split(',').map(s => s.trim())
+                        : [techStack];
+                }
+            } else if (Array.isArray(techStack)) {
+                parsedTechStack = techStack;
+            }
+        }
+
         project.title = title ?? project.title;
         project.description = description ?? project.description;
-        project.techStack = techStack ?? project.techStack;
+        project.techStack = parsedTechStack ?? project.techStack;
         project.githubUrl = githubUrl ?? project.githubUrl;
         project.liveURL = liveURL ?? project.liveURL;
         
-        if (req.file) {
-            project.imageURL = { 
-                url: req.file.path || req.file.filename, 
-                public_id: req.file.filename 
-            };
+        if (req.files && (req.files as any[]).length > 0) {
+            // Delete old images from Cloudinary
+            if (project.imageURL && project.imageURL.length > 0) {
+                for (const img of project.imageURL) {
+                    try {
+                        await Cloudinary.uploader.destroy(img.public_id);
+                    } catch (e) {
+                        console.error('Cloudinary deletion error', e);
+                    }
+                }
+            }
+            // Set new images
+            project.imageURL = (req.files as any[]).map((file: any) => ({ 
+                url: file.path, 
+                public_id: file.filename 
+            }));
         }
 
+        
         await project.save();
         res.json({ message: 'Project updated successfully', project });
     
@@ -159,12 +216,14 @@ export const deleteProject = async (req: Request, res: Response) => {
             return;
         }
 
-        // Cloudinary deletion if present
-        if (project.imageURL && project.imageURL.public_id) {
-            try {
-                await Cloudinary.uploader.destroy(project.imageURL.public_id);
-            } catch (e) {
-                console.error('Cloudinary deletion error', e);
+        // Cloudinary deletion for multiple images
+        if (project.imageURL && project.imageURL.length > 0) {
+            for (const img of project.imageURL) {
+                try {
+                    await Cloudinary.uploader.destroy(img.public_id);
+                } catch (e) {
+                    console.error('Cloudinary deletion error', e);
+                }
             }
         }
         

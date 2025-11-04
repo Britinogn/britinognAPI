@@ -9,7 +9,7 @@ interface IProject extends Document {
     imageURL: {
         url: string;
         public_id: string;
-    };
+    }[];
     category?:string
     yearBuilt?:number
     createdAt: Date;
@@ -22,10 +22,10 @@ const projectSchema: Schema<IProject> = new mongoose.Schema({
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     techStack: [{ type: String }],
-    imageURL: {
+    imageURL: [{
         url: { type: String },
         public_id: { type: String }
-    },
+    }],
     githubUrl: { type: String,  trim: true },
     liveURL: { type: String,  trim: true },
     category: { type: String, trim: true },
