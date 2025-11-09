@@ -109,10 +109,13 @@ export const createProject =  async (req: TypedRequest<IProjectBody>, res: Respo
             : [];
 
         // Now map safely
-        const imageURL = filesArray.map((file) => ({
-            url: file.path,      // or cloudinary url / file.location depending on uploader
-            public_id: file.filename
-        }));
+        const imageURL = filesArray.map((file: any) => {
+            console.log('🖼️ File details:', { path: file.path, filename: file.filename });
+            return {
+                url: file.path,           // Cloudinary URL
+                public_id: file.filename   // Cloudinary public_id
+            };
+        });
 
 
         const newProject = await ProjectModel.create({
@@ -135,7 +138,9 @@ export const createProject =  async (req: TypedRequest<IProjectBody>, res: Respo
                 techStack: newProject.techStack,
                 githubUrl: newProject.githubUrl,
                 liveURL: newProject.liveURL,
-                imageURL: newProject.imageURL
+                imageURL: newProject.imageURL,
+                ...(newProject.category && { category: newProject.category }),
+                ...(newProject.yearBuilt && { yearBuilt: newProject.yearBuilt }),
             }
         });
         
@@ -179,22 +184,24 @@ export const updateProject = async (req: Request, res: Response) => {
         project.githubUrl = githubUrl ?? project.githubUrl;
         project.liveURL = liveURL ?? project.liveURL;
         
-        if (req.files && (req.files as any[]).length > 0) {
-            // Delete old images from Cloudinary
-            if (project.imageURL && project.imageURL.length > 0) {
-                for (const img of project.imageURL) {
-                    try {
-                        await Cloudinary.uploader.destroy(img.public_id);
-                    } catch (e) {
-                        console.error('Cloudinary deletion error', e);
-                    }
-                }
-            }
-            // Set new images
-            project.imageURL = (req.files as any[]).map((file: any) => ({ 
-                url: file.path, 
-                public_id: file.filename 
+        const filesArray: Express.Multer.File[] = Array.isArray(req.files)
+            ? req.files
+            : req.files
+            ? Object.values(req.files).flat() as Express.Multer.File[]
+            : [];
+
+        if (filesArray.length > 0) {
+            console.log(`✅ Processing ${filesArray.length} new images...`);
+            
+            const newImageURLs = filesArray.map((file: any) => ({
+                url: file.path,           // Cloudinary URL
+                public_id: file.filename   // Cloudinary public_id
             }));
+
+            // Append new images to existing ones
+            project.imageURL = [...project.imageURL, ...newImageURLs];
+            
+            console.log('✨ Updated imageURL:', project.imageURL);
         }
 
         
