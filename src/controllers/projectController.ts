@@ -161,8 +161,8 @@ export const updateProject = async (req: Request, res: Response) => {
             res.status(404).json({ message: 'Project not found' });
             return;
         }
-
-        const {title, description,techStack ,githubUrl , liveURL} = req.body;
+        
+        const {title, description,techStack ,githubUrl , liveURL , category, yearBuilt} = req.body;
 
         // ✅ Parse techStack to ensure it's always an array
         let parsedTechStack: string[] | undefined;
@@ -185,6 +185,8 @@ export const updateProject = async (req: Request, res: Response) => {
         project.techStack = parsedTechStack ?? project.techStack;
         project.githubUrl = githubUrl ?? project.githubUrl;
         project.liveURL = liveURL ?? project.liveURL;
+        project.category = category ?? project.category;
+        project.yearBuilt = yearBuilt ?? project.yearBuilt;
         
         const filesArray: Express.Multer.File[] = Array.isArray(req.files)
             ? req.files
