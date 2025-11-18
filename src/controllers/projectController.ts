@@ -75,7 +75,7 @@ export const getProjectById = async (req: Request, res: Response) => {
 
 export const createProject =  async (req: TypedRequest<IProjectBody>, res: Response) => {
     try {
-        const {title, description,techStack ,githubUrl , liveURL} = req.body;
+        const {title, description,techStack ,githubUrl , liveURL , category, yearBuilt} = req.body;
         
         if (!title|| !description|| !techStack|| !githubUrl|| !liveURL) {
             res.status(400).json({message: 'All fields are required'})
@@ -124,7 +124,9 @@ export const createProject =  async (req: TypedRequest<IProjectBody>, res: Respo
             techStack: parsedTechStack,
             githubUrl,
             liveURL,
-            imageURL
+            imageURL,
+            category,
+            yearBuilt
         })
 
         //await newProject.save();
@@ -199,7 +201,7 @@ export const updateProject = async (req: Request, res: Response) => {
             }));
 
             // Append new images to existing ones
-            project.imageURL = [...project.imageURL, ...newImageURLs];
+            project.imageURL = [...(project.imageURL || []), ...newImageURLs];
             
             console.log('✨ Updated imageURL:', project.imageURL);
         }
