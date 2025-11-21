@@ -14,3 +14,4 @@ Skills Management - Manage your tech stack
 Unified Dashboard - Single endpoint to fetch all data
 TypeScript - Fully typed for better development experience
 MongoDB - NoSQL database with Mongoose ODM
+update
