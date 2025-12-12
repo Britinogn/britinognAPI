@@ -6,6 +6,8 @@ import axios from "axios";
 const GITHUB_USERNAME = process.env.GITHUB_USERNAME || "Britinogn";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Optional but recommended for higher rate limits
 
+// GITHUB_TOKEN updated code okay..
+
 // Helper function to fetch data from GitHub API
 export const fetchGithubData = async () => {
   const headers: Record<string, string> = {
