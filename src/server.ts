@@ -10,18 +10,18 @@ import cors from 'cors'
 
 /** Middleware  */
 app.use(express.json())
-// app.use(cors())
+app.use(cors())
 
 // Allow your Vercel domain + localhost for dev
-app.use(cors({
-    origin: [
-        'https://ctemz.vercel.app/',   
-        'http://localhost:5173',                   
-    ],
-    credentials: true,  // if using cookies/auth
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// app.use(cors({
+//     origin: [
+//         'https://ctemz.vercel.app/',   
+//         'http://localhost:5173',                   
+//     ],
+//     credentials: true,  // if using cookies/auth
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 
 
 
